@@ -1194,7 +1194,20 @@ public:
   /** Free the memory to trx_pools */
   inline void free();
 
-
+#if defined(WITH_WSREP) && defined(UNIV_DEBUG)
+  inline const char* trx_state_str()
+  {
+    switch(state)
+    {
+      case TRX_STATE_NOT_STARTED : return "TRX_STATE_NOT_STARTED"; break;
+      case TRX_STATE_ACTIVE : return "TRX_STATE_ACTIVE"; break;
+      case TRX_STATE_PREPARED : return "TRX_STATE_PREPARED"; break;
+      case TRX_STATE_PREPARED_RECOVERED : return "TRX_STATE_PREPARED"; break;
+      case TRX_STATE_COMMITTED_IN_MEMORY : return "TRX_STATE_COMMITTED_IN_MEMORY"; break;
+      default: ut_error; return " "; break; // for compiler
+    }
+  }
+#endif /* WITH_WSREP && UNIV_DEBUG */
 private:
 	/** Assign a rollback segment for modifying temporary tables.
 	@return the assigned rollback segment */

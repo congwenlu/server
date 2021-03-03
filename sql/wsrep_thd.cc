@@ -876,7 +876,7 @@ void wsrep_report_bf_lock_wait(THD *thd,
 {
   if (thd)
   {
-    WSREP_ERROR("Thread %s trx_id: %llu thread: %ld "
+    WSREP_INFO("Thread %s trx_id: %llu thread: %ld "
                 "seqno: %lld query_state: %s conf_state: %s exec_mode: %s "
                 "applier: %d query: %s",
                 wsrep_thd_is_BF(thd, false) ? "BF" : "normal",
