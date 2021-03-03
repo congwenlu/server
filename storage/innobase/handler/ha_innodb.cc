@@ -18627,7 +18627,8 @@ static void bg_wsrep_kill_trx(void *void_arg)
 
 	lock_mutex_enter();
 	trx_mutex_enter(victim_trx);
-	if (victim_trx->id != arg->trx_id)
+	if (victim_trx->id != arg->trx_id ||
+	    victim_trx->state == TRX_STATE_COMMITTED_IN_MEMORY)
 	{
 		/* apparently victim trx was meanwhile rolled back.
 		tell bf thd not to wait, in case it already started to */
