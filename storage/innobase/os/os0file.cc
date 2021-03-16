@@ -1438,7 +1438,8 @@ os_file_create_func(
 				<< "Retrying to lock the first data file";
 
 			for (int i = 0; i < 100; i++) {
-				os_thread_sleep(1000000);
+				std::this_thread::sleep_for(
+					std::chrono::seconds(1));
 
 				if (!os_file_lock(file, name)) {
 					*success = true;
@@ -2745,8 +2746,7 @@ os_file_delete_if_exists_func(
 			ib::warn() << "Delete of file '" << name << "' failed.";
 		}
 
-		/* Sleep for a second */
-		os_thread_sleep(1000000);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		if (count > 2000) {
 
@@ -2794,8 +2794,7 @@ os_file_delete_func(
 				<< "another program accessing it?";
 		}
 
-		/* sleep for a second */
-		os_thread_sleep(1000000);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		if (count > 2000) {
 
@@ -3433,13 +3432,13 @@ os_file_handle_error_cond_exit(
 
 	case OS_FILE_SHARING_VIOLATION:
 
-		os_thread_sleep(10000000);	/* 10 sec */
+		std::this_thread::sleep_for(std::chrono::seconds(10));
 		return(true);
 
 	case OS_FILE_OPERATION_ABORTED:
 	case OS_FILE_INSUFFICIENT_RESOURCE:
 
-		os_thread_sleep(100000);	/* 100 ms */
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		return(true);
 
 	default:
