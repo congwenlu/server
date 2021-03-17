@@ -4393,7 +4393,7 @@ static bool is_file_on_ssd(char *file_path)
 /** Determine some file metadata when creating or reading the file.
 @param	file	the file that is being created, or OS_FILE_CLOSED */
 void fil_node_t::find_metadata(os_file_t file
-#ifdef UNIV_LINUX
+#ifndef _WIN32
 			       , struct stat* statbuf
 #endif
 			       )
@@ -4433,18 +4433,18 @@ void fil_node_t::find_metadata(os_file_t file
 		block_size = 512;
 	}
 #else
-	on_ssd = space->atomic_write_supported;
-# ifdef UNIV_LINUX
-	if (!on_ssd) {
-		struct stat sbuf;
-		if (!statbuf && !fstat(file, &sbuf)) {
-			statbuf = &sbuf;
-		}
-		if (statbuf && fil_system.is_ssd(statbuf->st_dev)) {
-			on_ssd = true;
-		}
+	struct stat sbuf;
+	if (!statbuf && !fstat(file, &sbuf)) {
+		statbuf = &sbuf;
 	}
+	if (statbuf) {
+		block_size = statbuf->st_blksize;
+	}
+	on_ssd = space->atomic_write_supported
+# ifdef UNIV_LINUX
+		|| (statbuf && fil_system.is_ssd(statbuf->st_dev))
 # endif
+		;
 #endif
 	if (!space->atomic_write_supported) {
 		space->atomic_write_supported = atomic_write
@@ -4478,7 +4478,6 @@ bool fil_node_t::read_page0()
 	if (fstat(handle, &statbuf)) {
 		return false;
 	}
-	block_size = statbuf.st_blksize;
 	os_offset_t size_bytes = statbuf.st_size;
 #else
 	os_offset_t size_bytes = os_file_get_size(handle);
