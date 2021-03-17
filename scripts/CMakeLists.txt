@@ -278,7 +278,7 @@ IF(WIN32)
     INSTALL_SCRIPT(${CMAKE_CURRENT_BINARY_DIR}/${file}.pl COMPONENT Server_Scripts)
   ENDFOREACH()
 ELSE()
-  IF(WITH_WSREP)
+  IF(WITH_WSREP AND NOT WITHOUT_SERVER)
     SET(WSREP_SCRIPTS
       wsrep_sst_mysqldump
       wsrep_sst_rsync
@@ -303,13 +303,12 @@ ELSE()
         COMPONENT ${${file}_COMPONENT}
       )
     ENDFOREACH()
-  ENDIF()
-  IF (NOT WITHOUT_SERVER)
     SET(SERVER_SCRIPTS
       mariadb-fix-extensions
       mariadbd-multi
       mariadbd-safe
       mariadb-dumpslow
+      ${SYSTEMD_SCRIPTS}
     )
   ENDIF()
   # Configure this one, for testing, but do not install it.
@@ -328,7 +327,6 @@ ELSE()
     mariadb-hotcopy
     ${SERVER_SCRIPTS}
     ${WSREP_SCRIPTS}
-    ${SYSTEMD_SCRIPTS}
   )
 
   FOREACH(file ${BIN_SCRIPTS})
