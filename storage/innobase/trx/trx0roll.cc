@@ -800,11 +800,8 @@ Rollback or clean up any incomplete transactions which were
 encountered in crash recovery.  If the transaction already was
 committed, then we clean up a possible insert undo log. If the
 transaction was not yet committed, then we roll it back.
-Note: this is done in a background thread.
-@return a dummy parameter */
-extern "C"
-os_thread_ret_t
-DECLARE_THREAD(trx_rollback_all_recovered)(void*)
+Note: this is done in a background thread. */
+void trx_rollback_all_recovered()
 {
 	my_thread_init();
 	ut_ad(!srv_read_only_mode);
@@ -824,12 +821,10 @@ DECLARE_THREAD(trx_rollback_all_recovered)(void*)
 	trx_rollback_is_active = false;
 
 	my_thread_end();
-	/* We count the number of threads in os_thread_exit(). A created
-	thread should always use that to exit and not use return() to exit. */
 
-	os_thread_exit();
-
-	OS_THREAD_DUMMY_RETURN;
+#ifdef UNIV_PFS_THREAD
+	pfs_delete_thread();
+#endif
 }
 
 /****************************************************************//**
