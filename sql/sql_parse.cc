@@ -7056,7 +7056,7 @@ check_table_access(THD *thd, privilege_t requirements, TABLE_LIST *tables,
 {
   TABLE_LIST *org_tables= tables;
   TABLE_LIST *first_not_own_table= thd->lex->first_not_own_table();
-  uint i= 0;
+  uint i= 0, n_table_functions= 0;
   /*
     The check that first_not_own_table is not reached is for the case when
     the given table list refers to the list for prelocking (contains tables
@@ -7091,7 +7091,10 @@ check_table_access(THD *thd, privilege_t requirements, TABLE_LIST *tables,
       continue;
 
     if (table_ref->table_function)
+    {
+      n_table_functions++;
       continue;
+    }
 
     if (table_ref->sequence)
     {
@@ -7108,7 +7111,9 @@ check_table_access(THD *thd, privilege_t requirements, TABLE_LIST *tables,
                      0, no_errors))
       return 1;
   }
-  return check_grant(thd,requirements,org_tables,
+  return (n_table_functions == i) ?
+    check_access(thd, requirements, any_db, NULL, NULL, 0, 0) :
+    check_grant(thd,requirements,org_tables,
                      any_combination_of_privileges_will_do,
                      number, no_errors);
 }
